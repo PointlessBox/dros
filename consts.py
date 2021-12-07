@@ -1,0 +1,3 @@
+ROS_IMAGE_REPOSITORY = 'ros'
+ROS_IMAGE_DEFAULT_TAG = 'latest'
+DROS_BASE_IMAGE_NAME = 'dros-ws'
