@@ -1,1 +1,1 @@
-- i used virtualenv to develop the python cli tool
+- I used virtualenv to develop the python cli tool
