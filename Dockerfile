@@ -10,9 +10,9 @@ ENV ROS_VERSION=${ROS_VERSION:-melodic}
 RUN apt update
 
 # lsb-release, curl and gnupg2 are needed for ROS installation
-RUN apt install -y lsb-release && \
-    apt install -y curl && \
-    apt install -y gnupg2
+#RUN apt install -y lsb-release && \
+#    apt install -y curl && \
+#    apt install -y gnupg2
 
 # Installing xauth to add keys for use with x-server (Needed to start GUI-Applications inside docker container)
 RUN apt install -y xauth && \
