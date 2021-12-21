@@ -34,6 +34,7 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
     """
     Creates an initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
     
+    \b
     Parameters
     ----------
     workspace : str
@@ -63,6 +64,7 @@ def reinit(workspace: str) -> None:
     """
     Clears the catkin_ws folder of the given workspace and initializes it again.
 
+    \b
     Parameters
     ----------
     workspace : str
@@ -81,6 +83,7 @@ def connect(workspace: str) -> None:
     """
     Connects you to the given workspace by opening a shell.
     
+    \b
     Parameters
     ----------
     workspace : str
@@ -100,7 +103,7 @@ def select() -> None:
         click.echo(f"[{index}] {workspace}")
 
     click.echo()
-    selector = input("Select workspace (index or name): ")
+    selector = click.prompt("Select workspace (index or name)")
 
     for (index, workspace) in zip(indices, workspaces):
         try:
@@ -120,13 +123,14 @@ def rename(workspace: str) -> None:
     """
     Renames the given workspace
 
+    \b
     Parameters
     ----------
     workspace : str
         Workspace to rename.
     """
     
-    new_name = input("New name: ")
+    new_name = click.prompt("New name")
 
     dros_utils.rename_workspace(workspace, new_name)
 
@@ -164,6 +168,7 @@ def remove(workspace: str, persist: bool) -> None:
     """
     Removes the given workspace.
 
+    \b
     Parameters
     ----------
     workspace : str
