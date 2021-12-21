@@ -9,6 +9,10 @@ import os
 
 @click.group()
 def cli() -> None:
+    """
+    A tool to create ROS-Workspaces as docker-containers and to interact with them.
+    Only compatible with docker-images of ROS-Versions pre ROS2.
+    """
     pass
 
 
@@ -28,18 +32,21 @@ def cli() -> None:
 @click.argument('workspace')
 def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
     """
-    Creates a new workspace from the given name and ros-version.
-
+    Creates an initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
+    
     Parameters
     ----------
-    name : str
-        The name of the created workspace. Defaults to a random name.
-    ros-version : str
-        Represents the tag of the ros-image e.g. 'ros:melodic'.
-        You can find all images here: https://registry.hub.docker.com/_/ros/
+    workspace : str
+        Workspace to create.
+    ros_version : str
+        The ROS-Version to build from (e.g. noetic).
+        Defaults to melodic.
     path : str
-        The path where the catkin_ws directory will be created.
-        Defaults to the current working directory.
+        The path where the catkin_ws folder should be placed on the host environment.
+        e.g. ~/ros-workspaces/ws-1          -> /home/ros-workspaces/ws-1/catkin_ws
+             /home/path/to/workspaces/ws-x  -> /home/path/to/workspaces/ws-x/catkin_ws
+             /home/ws-x/catkin_ws           -> /home/ws-x/catkin_ws
+        Defaults to current working directory (./catkin_ws)
     """
 
     if not dros_utils.workspace_exists(workspace):
@@ -116,7 +123,7 @@ def rename(workspace: str) -> None:
     Parameters
     ----------
     workspace : str
-        Workspace rename.
+        Workspace to rename.
     """
     
     new_name = input("New name: ")
@@ -146,6 +153,29 @@ def start(workspace: str) -> None:
     dros_utils.start(workspace)
 
 
+@click.command()
+@click.option(
+    '--persist/--no-persist',
+    default=True,
+    help='keeps the content of the catkin_ws folder on host environment.'
+)
+@click.argument('workspace')
+def remove(workspace: str, persist: bool) -> None:
+    """
+    Removes the given workspace.
+
+    Parameters
+    ----------
+    workspace : str
+        Workspace to remove.
+    persist : bool
+        Keeps folder content of the 'catkin_ws' folder, corresponding to 'workspace', on host environment.
+        Defaults to True.
+    """
+
+    dros_utils.remove(workspace, persist)
+
+
 cli.add_command(new)
 cli.add_command(start)
 cli.add_command(connect)
@@ -153,6 +183,7 @@ cli.add_command(select)
 cli.add_command(reinit)
 cli.add_command(rename)
 cli.add_command(list)
+cli.add_command(remove)
 
 
 if __name__ == '__main__':

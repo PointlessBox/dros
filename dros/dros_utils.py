@@ -7,8 +7,26 @@ import consts
 import os
 
 
-def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
-    image_name = f'{ROS_IMAGE_REPOSITORY}:{ros_version}'
+def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None:
+    """
+    Creates an initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
+    
+    Parameters
+    ----------
+    workspace : str
+        Workspace to create.
+    ros_version : str
+        The ROS-Version to build from (e.g. noetic).
+        Defaults to melodic.
+        You can find all images here: https://registry.hub.docker.com/_/ros/
+    path : str
+        The path where the catkin_ws folder should be placed on the host environment.
+        e.g. ~/ros-workspaces/ws-1          -> /home/ros-workspaces/ws-1/catkin_ws
+             /home/path/to/workspaces/ws-x  -> /home/path/to/workspaces/ws-x/catkin_ws
+             /home/ws-x/catkin_ws           -> /home/ws-x/catkin_ws
+        Defaults to current working directory (./catkin_ws)
+    """
+    image_name = f'{consts.ROS_IMAGE_REPOSITORY}:{ros_version}'
     if 'ros:' in ros_version:
         image_name = ros_version  # If user gives for example 'ros:latest' as --ros-version then replace the composed image_name
 
@@ -17,31 +35,44 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
         docker_commands.pull_image(image_name)
 
     # Build dros base image
-    if not docker_commands.image_exists(DROS_BASE_IMAGE_NAME):
+    if not docker_commands.image_exists(consts.DROS_BASE_IMAGE_NAME):
         docker_commands.build_dros_image()
         
-    catkin_ws = dros_utils.catkin_ws_path_from(path)
-    try:
-        os.mkdir(catkin_ws)
-    except:
-        pass
+    catkin_ws = catkin_ws_path_from(path)
 
     subprocess.run([
         "docker", "create",
         "--name", workspace,
         "--mount", "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
         "--mount", f"type=bind,source={catkin_ws}/,target=/root/catkin_ws",
-        DROS_BASE_IMAGE_NAME
+        consts.DROS_BASE_IMAGE_NAME
     ])
 
-    dros_utils.init_workspace(workspace)
+    init_workspace(workspace)
 
 
 def start(workspace: str) -> None:
+    """
+    Starts the given workspace.
+    
+    Parameters
+    ----------
+    workspace : str
+        Workspace to start.
+    """
+
     docker_commands.start_container(workspace)
 
 
 def connect(workspace: str) -> None:
+    """
+    Opens a shell to the given workspace.
+    
+    Parameters
+    ----------
+    workspace : str
+        Workspace to connect to.
+    """
     docker_commands.start_container(workspace)
     subprocess.run([
         "docker", "exec",
@@ -51,6 +82,14 @@ def connect(workspace: str) -> None:
 
 
 def clear_workspace(workspace: str) -> None:
+    """
+    Removes the content of the catkin_ws folder corresponding to the given workspace.
+    
+    Parameters
+    ----------
+    workspace : str
+        Workspace to clear catkin_ws from.
+    """
     docker_commands.start_container(workspace)
 
     cmd = "/bin/bash -c 'rm -r ~/catkin_ws/*'"
@@ -58,6 +97,14 @@ def clear_workspace(workspace: str) -> None:
 
 
 def init_workspace(workspace: str) -> None:
+    """
+    Initializes the given workspace with 'catkin_make'.
+    
+    Parameters
+    ----------
+    workspace : str
+        Workspace to initialize.
+    """
     docker_commands.start_container(workspace)
 
     cmd = """/bin/bash -c 'mkdir -p ~/catkin_ws/src && \\
@@ -69,23 +116,35 @@ def init_workspace(workspace: str) -> None:
 
 
 def catkin_ws_path_from(path: Optional[str]) -> str:
+    """
+    Build and return the path to a new catkin_ws from the absolute or relative path: 'path'
+    
+    Parameters
+    ----------
+    path : str
+        Absolute or relative path to create the catkin_ws folder in.
+    """
     catkin_ws_folder = "catkin_ws"
 
-    if path != None and os.path.isdir(path):
-
+    if path != None:
         if not os.path.isabs(path):
             path = os.path.abspath(os.path.join(os.getcwd(), path))
 
-        if os.path.exists(path):
-                if path.endswith(catkin_ws_folder):
-                    return path
-                else:
-                    return os.path.join(path, catkin_ws_folder)
+        if not path.endswith(catkin_ws_folder):
+            path = os.path.join(path, catkin_ws_folder)
 
-    return os.path.join(os.getcwd(), catkin_ws_folder)
+        if not os.path.exists(path):
+            os.makedirs(path)
+    else:
+        path = os.path.join(os.getcwd(), catkin_ws_folder)
+
+    return path
 
 
 def get_workspaces() -> List[str]:
+    """
+    Gets all existing workspaces.
+    """
     return list(map(
         lambda container : container.name,
         docker_commands.get_containers_with_base_image(consts.DROS_BASE_IMAGE_NAME)
@@ -93,8 +152,43 @@ def get_workspaces() -> List[str]:
 
 
 def workspace_exists(workspace: str) -> bool:
+    """
+    Checks if the given workspace already exists.
+
+    Parameters
+    ----------
+    workspace : str
+        Workspace rename.
+    """
     return docker_commands.container_exists(workspace)
 
 
-def rename_workspace(workspace, new_name) -> None:
+def rename_workspace(workspace: str, new_name: str) -> None:
+    """
+    Renames to given workspace with the new name.
+
+    Parameters
+    ----------
+    workspace : str
+        Workspace to rename.
+    new_name : str
+        New name of workspace.
+    """
     docker_commands.rename_container(workspace, new_name)
+
+
+def remove(workspace: str, persist=True) -> None:
+    """
+    Removes the workspace.
+
+    Parameters
+    ----------
+    workspace : str
+        Workspace to remove.
+    persist : bool
+        Keeps folder content of the 'catkin_ws' folder, corresponding to 'workspace', on host environment.
+        Defaults to True.
+    """
+    if not persist:
+        clear_workspace(workspace)
+    docker_commands.remove(workspace)

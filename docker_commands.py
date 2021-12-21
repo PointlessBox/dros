@@ -125,3 +125,10 @@ ENTRYPOINT ["sleep", "infinity"]
 def rename_container(container_name: str, new_name: str) -> None:
     client = docker.from_env()
     client.containers.get(container_name).rename(new_name)
+
+
+def remove(container_name: str) -> None:
+    client = docker.from_env()
+    container = client.containers.get(container_name)
+    container.stop()
+    container.remove()
