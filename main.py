@@ -4,7 +4,7 @@ from typing import Optional
 #import json
 import subprocess
 import docker_commands
-import dros_utils
+from dros import dros_utils
 from consts import ROS_IMAGE_REPOSITORY, ROS_IMAGE_DEFAULT_TAG, DROS_BASE_IMAGE_NAME
 import os
 
@@ -43,35 +43,8 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
         Defaults to the current working directory.
     """
 
-    # TODO: Refactor to use dros_utils
-    if not docker_commands.container_exists(workspace):
-        image_name = f'{ROS_IMAGE_REPOSITORY}:{ros_version}'
-        if 'ros:' in ros_version:
-            image_name = ros_version  # If user gives for example 'ros:latest' as --ros-version then replace the composed image_name
-
-        # Pulls the base ros base image 
-        if not docker_commands.image_exists(image_name):
-            docker_commands.pull_image(image_name)
-
-        # Build dros base image
-        if not docker_commands.image_exists(DROS_BASE_IMAGE_NAME):
-            docker_commands.build_dros_image()
-            
-        catkin_ws = dros_utils.catkin_ws_path_from(path)
-        try:
-            os.mkdir(catkin_ws)
-        except:
-            pass
-
-        subprocess.run([
-            "docker", "create",
-            "--name", workspace,
-            "--mount", "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
-            "--mount", f"type=bind,source={catkin_ws}/,target=/root/catkin_ws",
-            DROS_BASE_IMAGE_NAME
-        ])
-
-        dros_utils.init_workspace(workspace)
+    if not dros_utils.workspace_exists(workspace):
+        dros_utils.new(workspace, ros_version, path)
         
         click.echo(f"'{workspace}' created")
     else:
