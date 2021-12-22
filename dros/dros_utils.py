@@ -40,13 +40,22 @@ def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None
         
     catkin_ws = catkin_ws_path_from(path)
 
-    subprocess.run([
-        "docker", "create",
-        "--name", workspace,
-        "--mount", "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
-        "--mount", f"type=bind,source={catkin_ws}/,target=/root/catkin_ws",
-        consts.DROS_BASE_IMAGE_NAME
-    ])
+    workspace_config = {
+        catkin_ws: {
+            "bind": "/root/catkin_ws",  # binds the 'catkin_ws' path on host to '/root/catkin_ws' in container
+            "mode": "rw"  # read-write
+        }
+    }
+
+    docker_commands.run_container(workspace, workspace_config)
+
+    # subprocess.run([
+    #     "docker", "create",
+    #     "--name", workspace,
+    #     "--mount", "type=bind,source=/tmp/.X11-unix,target=/tmp/.X11-unix",
+    #     "--mount", f"type=bind,source={catkin_ws}/,target=/root/catkin_ws",
+    #     consts.DROS_BASE_IMAGE_NAME
+    # ])
 
     init_workspace(workspace)
 
@@ -74,10 +83,13 @@ def connect(workspace: str) -> None:
         Workspace to connect to.
     """
     docker_commands.start_container(workspace)
+    cmd = "/bin/bash"
+    workdir = "/root"
+    #docker_commands.exec_run_in(workspace, cmd, workdir=workdir, stdin=True, tty=True)
     subprocess.run([
         "docker", "exec",
         "-w", "/root",  # Equivalent to home directory
-        "-it", workspace, "/bin/bash"
+        "-it", workspace, "/bin/bash", "-c", 'while :; do (bash); if [ $? -eq "0" ]; then break; fi; done' 
     ])
 
 
@@ -132,11 +144,11 @@ def catkin_ws_path_from(path: Optional[str]) -> str:
 
         if not path.endswith(catkin_ws_folder):
             path = os.path.join(path, catkin_ws_folder)
-
-        if not os.path.exists(path):
-            os.makedirs(path)
     else:
         path = os.path.join(os.getcwd(), catkin_ws_folder)
+    
+    if not os.path.exists(path):
+        os.makedirs(path)
 
     return path
 
@@ -192,3 +204,28 @@ def remove(workspace: str, persist=True) -> None:
     if not persist:
         clear_workspace(workspace)
     docker_commands.remove(workspace)
+
+
+def shout_if_workspace_exists(workspace: str) -> bool:
+    """
+    Returns true if workspace exists.
+    Uses click.echo to tell the user if it does not exist.
+
+    Parameters
+    ----------
+    workspace : str
+        Workspace to check.
+    """
+    exists = workspace_exists(workspace) 
+    if not exists:
+        click.echo(f"'{workspace}' does not exist")
+    return exists
+
+
+def get_workspace_from_user_input(workspace: str) -> str:
+    result = ""
+    try:
+        result = list(filter(lambda ws : ws == workspace, get_workspaces()))[0]
+    except:
+        pass
+    return result

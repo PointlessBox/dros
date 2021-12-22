@@ -1,5 +1,4 @@
-from typing import List
-from typing import Union 
+from typing import Union, Optional, Dict, List
 import docker
 import subprocess
 from consts import ROS_IMAGE_REPOSITORY, ROS_IMAGE_DEFAULT_TAG, DROS_BASE_IMAGE_NAME
@@ -30,9 +29,13 @@ def container_exists(container_name: str) -> bool:
     return exists
 
 
-def exec_run_in(container_name: str, cmd: Union[str, List]) -> None:
+def exec_run_in(container_name: str,
+                cmd: Union[str, List],
+                workdir: Optional[str]=None,
+                stdin = False,
+                tty = False) -> None:
     client = docker.from_env()
-    client.containers.get(container_name).exec_run(cmd)
+    client.containers.get(container_name).exec_run(cmd, workdir=workdir, stdin=stdin, tty=tty)
 
 
 def image_exists(image_name: str) -> bool:
@@ -82,6 +85,25 @@ def get_containers_with_base_image(base_image: str) -> List[docker.models.contai
     client = docker.from_env()
 
     return client.containers.list(all=True, filters={ "ancestor": "dros-ws:latest" })
+
+
+def run_container(container_name: str, volumes: Dict[str, Dict[str, str]]) -> None:
+    client = docker.from_env()
+    detach = True
+    privileged = True
+    network_mode = "host"
+    client.containers.run(DROS_BASE_IMAGE_NAME,
+                        name=container_name,
+                        detach=detach,
+                        volumes=volumes,
+                        privileged=privileged,
+                        network_mode=network_mode)
+
+
+# def create_container_with(container_name: str, ) -> None:
+#     client = docker.from_env()
+#     client.containers.create(image)
+#     pass
 
 
 def create_dockerfile():

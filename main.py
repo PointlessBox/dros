@@ -51,6 +51,8 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
     """
 
     if not dros_utils.workspace_exists(workspace):
+        click.echo(f"Creating '{workspace}'. This might take a while")
+
         dros_utils.new(workspace, ros_version, path)
         
         click.echo(f"'{workspace}' created")
@@ -71,10 +73,11 @@ def reinit(workspace: str) -> None:
         Workspace reinitialize.
     """
 
-    click.echo(f"Clearing workspace '{workspace}' ...")
-    dros_utils.clear_workspace(workspace)
-    click.echo(f"Initializing workspace '{workspace}' ...")
-    dros_utils.init_workspace(workspace)
+    if dros_utils.shout_if_workspace_exists(workspace):
+        click.echo(f"Clearing workspace '{workspace}' ...")
+        dros_utils.clear_workspace(workspace)
+        click.echo(f"Initializing workspace '{workspace}' ...")
+        dros_utils.init_workspace(workspace)
 
 
 @click.command()
@@ -89,7 +92,9 @@ def connect(workspace: str) -> None:
     workspace : str
         Workspace to connect to.
     """
-    dros_utils.connect(workspace)
+
+    if dros_utils.shout_if_workspace_exists(workspace):
+        dros_utils.connect(workspace)
 
 
 @click.command()
@@ -129,10 +134,11 @@ def rename(workspace: str) -> None:
     workspace : str
         Workspace to rename.
     """
-    
-    new_name = click.prompt("New name")
 
-    dros_utils.rename_workspace(workspace, new_name)
+    if dros_utils.shout_if_workspace_exists(workspace):
+        new_name = click.prompt("New name")
+
+        dros_utils.rename_workspace(workspace, new_name)
 
 
 @click.command()
@@ -154,8 +160,9 @@ def start(workspace: str) -> None:
     Starts the given workspace.
     """
 
-    dros_utils.start(workspace)
-
+    if dros_utils.shout_if_workspace_exists(workspace):
+        dros_utils.start(workspace)
+    
 
 @click.command()
 @click.option(
@@ -178,7 +185,9 @@ def remove(workspace: str, persist: bool) -> None:
         Defaults to True.
     """
 
-    dros_utils.remove(workspace, persist)
+    if dros_utils.shout_if_workspace_exists(workspace):
+        click.echo(f"Removing '{workspace}'. This might take a while")
+        dros_utils.remove(workspace, persist)
 
 
 cli.add_command(new)
