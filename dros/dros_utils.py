@@ -5,6 +5,7 @@ import docker_commands
 from typing import Optional, List
 import consts
 import os
+import pwd
 
 
 def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None:
@@ -57,7 +58,7 @@ def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None
     #     consts.DROS_BASE_IMAGE_NAME
     # ])
 
-    init_workspace(workspace)
+    init_workspace(workspace, catkin_ws)
 
 
 def start(workspace: str) -> None:
@@ -108,7 +109,7 @@ def clear_workspace(workspace: str) -> None:
     docker_commands.exec_run_in(workspace, cmd)
 
 
-def init_workspace(workspace: str) -> None:
+def init_workspace(workspace: str, path: str) -> None:
     """
     Initializes the given workspace with 'catkin_make'.
     
@@ -125,6 +126,9 @@ def init_workspace(workspace: str) -> None:
             source /opt/ros/$ROS_DISTRO/setup.bash && \\
             catkin_make'"""
     docker_commands.exec_run_in(workspace, cmd)
+
+    current_user = pwd.getpwuid( os.getuid() ).pw_name
+    subprocess.run(["sudo", "chown", f"{current_user}:{current_user}", "-R", path])
 
 
 def catkin_ws_path_from(path: Optional[str]) -> str:

@@ -61,8 +61,14 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
 
 
 @click.command()
+@click.option(
+    '-p',
+    '--path',
+    default=None,
+    help='path of the catkin_ws on host environment'
+)
 @click.argument('workspace')
-def reinit(workspace: str) -> None:
+def reinit(workspace: str, path: str) -> None:
     """
     Clears the catkin_ws folder of the given workspace and initializes it again.
 
@@ -79,7 +85,7 @@ def reinit(workspace: str) -> None:
         click.echo(f"Clearing workspace '{workspace}' ...")
         dros_utils.clear_workspace(workspace)
         click.echo(f"Initializing workspace '{workspace}' ...")
-        dros_utils.init_workspace(workspace)
+        dros_utils.init_workspace(workspace, dros_utils.catkin_ws_path_from(path))
 
 
 @click.command()
@@ -140,14 +146,15 @@ def rename(workspace: str) -> None:
     if dros_utils.shout_if_workspace_exists(workspace):
         new_name = click.prompt("New name").strip()
 
-        while new_name == "" or dros_utils.workspace_exists(new_name):
+        while new_name == "" or (dros_utils.workspace_exists(new_name)):
             if new_name == "":
                 click.echo("Workspace name can't be empty")
             else:
                 click.echo(f"A workspace with name '{new_name}' already exists")
             new_name = click.prompt("New name").strip()
 
-        dros_utils.rename_workspace(workspace, new_name)
+        if new_name != workspace:
+            dros_utils.rename_workspace(workspace, new_name)
 
 
 @click.command()
@@ -162,15 +169,15 @@ def list() -> None:
         click.echo(f"[{index}] {workspace}")
 
 
-@click.command()
-@click.argument('workspace')
-def start(workspace: str) -> None:
-    """
-    Starts the given workspace.
-    """
+# @click.command()
+# @click.argument('workspace')
+# def start(workspace: str) -> None:
+#     """
+#     Starts the given workspace.
+#     """
 
-    if dros_utils.shout_if_workspace_exists(workspace):
-        dros_utils.start(workspace)
+#     if dros_utils.shout_if_workspace_exists(workspace):
+#         dros_utils.start(workspace)
     
 
 @click.command()
@@ -200,7 +207,7 @@ def remove(workspace: str, persist: bool) -> None:
 
 
 cli.add_command(new)
-cli.add_command(start)
+# cli.add_command(start)
 cli.add_command(connect)
 cli.add_command(select)
 cli.add_command(reinit)
