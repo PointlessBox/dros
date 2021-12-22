@@ -138,7 +138,14 @@ def rename(workspace: str) -> None:
     """
 
     if dros_utils.shout_if_workspace_exists(workspace):
-        new_name = click.prompt("New name")
+        new_name = click.prompt("New name").strip()
+
+        while new_name == "" or dros_utils.workspace_exists(new_name):
+            if new_name == "":
+                click.echo("Workspace name can't be empty")
+            else:
+                click.echo(f"A workspace with name '{new_name}' already exists")
+            new_name = click.prompt("New name").strip()
 
         dros_utils.rename_workspace(workspace, new_name)
 
