@@ -73,7 +73,9 @@ def reinit(workspace: str) -> None:
         Workspace reinitialize.
     """
 
-    if dros_utils.shout_if_workspace_exists(workspace):
+    confirm_message = "This will clear all files in your persisted workspace. Continue?"
+
+    if dros_utils.shout_if_workspace_exists(workspace) and click.confirm(confirm_message, abort=True):
         click.echo(f"Clearing workspace '{workspace}' ...")
         dros_utils.clear_workspace(workspace)
         click.echo(f"Initializing workspace '{workspace}' ...")
