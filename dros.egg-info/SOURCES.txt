@@ -1,0 +1,9 @@
+LICENSE
+README.md
+setup.py
+dros.egg-info/PKG-INFO
+dros.egg-info/SOURCES.txt
+dros.egg-info/dependency_links.txt
+dros.egg-info/entry_points.txt
+dros.egg-info/requires.txt
+dros.egg-info/top_level.txt

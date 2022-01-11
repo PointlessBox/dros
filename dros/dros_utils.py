@@ -45,6 +45,10 @@ def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None
         catkin_ws: {
             "bind": "/root/catkin_ws",  # binds the 'catkin_ws' path on host to '/root/catkin_ws' in container
             "mode": "rw"  # read-write
+        },
+        "/tmp/.X11-unix": {
+            "bind": "/tmp/.X11-unix",
+            "mode": "rw"
         }
     }
 

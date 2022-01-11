@@ -1,0 +1,3 @@
+[console_scripts]
+dros = dros:cli
+
