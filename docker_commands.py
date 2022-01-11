@@ -1,6 +1,7 @@
 from typing import Union, Optional, Dict, List
 import docker
 import subprocess
+import os
 from consts import ROS_IMAGE_REPOSITORY, ROS_IMAGE_DEFAULT_TAG, DROS_BASE_IMAGE_NAME
 
 def start_container(container_name: str) -> None:
@@ -92,12 +93,17 @@ def run_container(container_name: str, volumes: Dict[str, Dict[str, str]]) -> No
     detach = True
     privileged = True
     network_mode = "host"
+    env = []
+    env_display = os.getenv('DISPLAY')
+    if not env_display == None:
+        env.append(f"DISPLAY={env_display}")
     client.containers.run(DROS_BASE_IMAGE_NAME,
                         name=container_name,
                         detach=detach,
                         volumes=volumes,
                         privileged=privileged,
-                        network_mode=network_mode)
+                        network_mode=network_mode,
+                        environment=env)
 
 
 # def create_container_with(container_name: str, ) -> None:
