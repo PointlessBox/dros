@@ -65,6 +65,7 @@ def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
     '-p',
     '--path',
     default=None,
+    required=True,
     help='path of the catkin_ws on host environment'
 )
 @click.argument('workspace')

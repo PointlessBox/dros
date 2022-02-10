@@ -1,13 +1,26 @@
-- I used virtualenv to develop the python cli tool
 # Table of contents
 <!-- TOC -->
-- [Enable GUI Applications inside workspace](#enable-gui-applications-inside-workspace)
+- [Table of contents](#table-of-contents)
+- [How to](#how-to)
+    - [Build and install](#build-and-install)
+    - [Creating a new workspace](#creating-a-new-workspace)
+    - [Connect to a workspace](#connect-to-a-workspace)
+- [Special Cases](#special-cases)
+    - [Enable GUI applications inside workspace](#enable-gui-applications-inside-workspace)
+    - [Edit your workspace without connecting to workspace](#edit-your-workspace-without-connecting-to-workspace)
+- [Tutorials](#tutorials)
+    - [Running SICK laserscanner with dros](#running-sick-laserscanner-with-dros)
 <!-- /TOC -->
 
 
 # How to
 
 ## Build and install
+
+First of all you need to install Docker on your platform. Follow the [instructions](https://docs.docker.com/engine/install/) for your platform.
+
+If you successfully installed Docker you can continue with the following steps.
+
 
 1. Clone the repository
 ```bash
@@ -51,7 +64,7 @@ mkdir some_dros_ws
 cd some_dros_ws
 ```
 
-3. Create new workspace with an appropriate name. For this example we will create a 'turtlebot' project workspace. By passing the `--path` option we can tell `dros` to use a specific directory where our data should be placed in. In this case we create the directory 'turtle'. We can also specify the ROS version to use. In this case it's 'melodic':
+3. Create new workspace with an appropriate name. For this example we will create a 'turtlebot' project workspace. By passing the `--path` option we can tell DROS to use a specific directory where our data should be placed in. In this case we create the directory 'turtle'. We can also specify the ROS version to use. In this case it's 'melodic':
 ```bash
 dros new turtlebot --path=turtle --ros-version=melodic
 ```
@@ -59,6 +72,28 @@ dros new turtlebot --path=turtle --ros-version=melodic
 You can check if your workspace got created by using `dros list`.
 
 **That's it. You created your first DROS workspace!**
+
+
+## Connect to a workspace
+
+To connect to a workspace you need to use the following command:
+```bash
+dros connect <workspace_name | index>
+```
+
+You can get a list of all workspaces by using `dros list` which will give you an output like this:
+```
+[0] turtlebot
+```
+
+Now you can connect to your workspace by either passing the workspace name (e.g. 'turtlebot') or the index (e.g. '0') to `dros connect`:
+```bash
+dros connect turtlebot
+```
+
+You can also use a more comfortable way by using the `--select` flag without the `workspace` argument, which gives you a list of workspaces and then prompts you to select one.
+
+**Now you got a shell inside your workspace and you can start your project!**
 
 
 # Special Cases
@@ -75,7 +110,7 @@ You can check if your workspace got created by using `dros list`.
 
 4. Copy the output from your terminal.
 
-5. Connect to your dros workspace by using the 'connect' or 'select' command.
+5. Connect to your DROS workspace by using the `connect` command.
 
 6. Type in the following command in the connected terminal:  
 `xauth add <insert copied entry from step 3 and 4>`
@@ -100,7 +135,7 @@ This will change the ownership of all folders and files to the given user.
 
 # Tutorials
 
-## Running SICK laserscanner with dros
+## Running SICK laserscanner with DROS
 
 Before yor start this tutorial, be sure to enable GUI Applications in your workspace by following the associated tutorial.
 
@@ -122,7 +157,7 @@ Now run `catkin_make install` again.
 
 6. Now make sure you got read/write permissions on the associated USB device by running `sudo chmod a+rw /dev/ttyUSB0`
 
-7. Now open two additional terminals and connect them to your dros workspace 'sick-ws'.
+7. Now open two additional terminals and connect them to your DROS workspace 'sick-ws'.
 
 8. In the first terminal tun `roscore`  
 In the second terminal run  
