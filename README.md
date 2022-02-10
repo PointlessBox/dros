@@ -10,17 +10,55 @@
 ## Build and install
 
 1. Clone the repository
+```bash
+git clone https://github.com/PointlessBox/dros
+```
 
 2. Install `build`:
 ```bash
-pip3 install build
+pip install build
 ```
 
-3. 
+3. Navigate into project directory:
+```bash
+cd dros
+```
+
+4. Build project:
+```bash
+python -m build
+```
+
+5. Install project
+```bash
+pip install dist/dros<some stuff>.whl
+```
+
+6. Test installation:
+```bash
+dros --help
+```
 
 ## Creating a new workspace
 
+1. Create a directory where you want to place your workspace in. This folder is just the place where your workspace data will be saved into. It is not your final workspace:
+```bash
+mkdir some_dros_ws
+```
 
+2. Navigate into this directory
+```bash
+cd some_dros_ws
+```
+
+3. Create new workspace with an appropriate name. For this example we will create a 'turtlebot' project workspace. By passing the `--path` option we can tell `dros` to use a specific directory where our data should be placed in. In this case we create the directory 'turtle'. We can also specify the ROS version to use. In this case it's 'melodic':
+```bash
+dros new turtlebot --path=turtle --ros-version=melodic
+```
+
+You can check if your workspace got created by using `dros list`.
+
+**That's it. You created your first DROS workspace!**
 
 
 # Special Cases
