@@ -166,4 +166,4 @@ In the third terminal run `rosrun rviz rviz`.
 You should now have a window running the RViz Visualizer.
 
 9. Now configure the visualizer to display the scanner data like so:
-<img src="./docs/images/sick_scanner_docker_settings.png" />
+<img src="./docu/images/sick_scanner_docker_settings.png" />
