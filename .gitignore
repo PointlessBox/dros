@@ -1,2 +1,5 @@
 /catkin_ws
 /*.egg-info
+/dros.egg-info
+/dist
+/__pycache__

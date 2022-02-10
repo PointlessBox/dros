@@ -21,7 +21,7 @@ def cli() -> None:
     '-r',
     '--ros-version',
     default='latest',
-    help='name of the created workspace'
+    help='ROS version you want to use (e.g. "melodic")'
 )
 @click.option(
     '-p',
@@ -32,13 +32,13 @@ def cli() -> None:
 @click.argument('workspace')
 def new(workspace: str, ros_version: str, path: Optional[str]) -> None:
     """
-    Creates an initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
+    Creates and initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
     
     \b
     Parameters
     ----------
     workspace : str
-        Workspace to create.
+        Name of the workspace you want to create.
     ros_version : str
         The ROS-Version to build from (e.g. noetic).
         Defaults to melodic.

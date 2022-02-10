@@ -5,15 +5,24 @@
 <!-- /TOC -->
 
 
+# How to
 
-## Enable GUI Applications inside workspace
+## Creating a new workspace
+
+
+
+
+# Special Cases
+
+
+## Enable GUI applications inside workspace
 
 1. Open a terminal on your host environment
 
 2. Type `xauth version` into your terminal to check if it is installed. If it is not installed go ahead and install it.
 
 3. List your auth entries with `xauth list`. You should get an output similar to this:  
-`pbj-toGo/unix:0  MIT-MAGIC-COOKIE-1  158**************************1a8`
+`myuser/unix:0  MIT-MAGIC-COOKIE-1  158**************************1a8`
 
 4. Copy the output from your terminal.
 
@@ -40,7 +49,9 @@ This will change the ownership of all folders and files to the given user.
 <mark>**After using the `reinit` command or after using `catkin_make` you will have to redo this process, because the ownership will be reset to the root user of the workspace environment.**</mark>
 
 
-## Running SICK Laserscanner with dros
+# Tutorials
+
+## Running SICK laserscanner with dros
 
 Before yor start this tutorial, be sure to enable GUI Applications in your workspace by following the associated tutorial.
 
