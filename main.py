@@ -89,8 +89,13 @@ def reinit(workspace: str, path: str) -> None:
 
 
 @click.command()
-@click.argument('workspace')
-def connect(workspace: str) -> None:
+@click.option(
+    '--select/--no-select',
+    default=False,
+    help='Gives you a list with all workspaces to connect to, and asks which one to connect you to.'
+)
+@click.argument('workspace', required=False)
+def connect(workspace: Optional[str], select: bool) -> None:
     """
     Connects you to the given workspace by opening a shell.
     
@@ -101,33 +106,52 @@ def connect(workspace: str) -> None:
         Workspace to connect to.
     """
 
-    if dros_utils.shout_if_workspace_exists(workspace):
+    if select:
+        workspaces = dros_utils.get_workspaces()
+        indices = range(len(workspaces))
+        for (index, workspace) in zip(indices, workspaces):
+            click.echo(f"[{index}] {workspace}")
+
+        click.echo()
+        selector = click.prompt("Select workspace (index or name)")
+
+        for (index, workspace) in zip(indices, workspaces):
+            try:
+                indx = int(selector)
+                if indx == index:
+                    dros_utils.connect(workspace)
+                    break
+            except:
+                if selector == workspace:
+                    dros_utils.connect(workspace)
+                    break
+    elif workspace != None and dros_utils.shout_if_workspace_exists(workspace):
         dros_utils.connect(workspace)
 
 
-@click.command()
-def select() -> None:
-    """
-    Gives you a list with all workspaces to connect to, and asks which one to connect you to.
-    """
-    workspaces = dros_utils.get_workspaces()
-    indices = range(len(workspaces))
-    for (index, workspace) in zip(indices, workspaces):
-        click.echo(f"[{index}] {workspace}")
+# @click.command()
+# def select() -> None:
+#     """
+#     Gives you a list with all workspaces to connect to, and asks which one to connect you to.
+#     """
+#     workspaces = dros_utils.get_workspaces()
+#     indices = range(len(workspaces))
+#     for (index, workspace) in zip(indices, workspaces):
+#         click.echo(f"[{index}] {workspace}")
 
-    click.echo()
-    selector = click.prompt("Select workspace (index or name)")
+#     click.echo()
+#     selector = click.prompt("Select workspace (index or name)")
 
-    for (index, workspace) in zip(indices, workspaces):
-        try:
-            indx = int(selector)
-            if indx == index:
-                dros_utils.connect(workspace)
-                break
-        except:
-            if selector == workspace:
-                dros_utils.connect(workspace)
-                break
+#     for (index, workspace) in zip(indices, workspaces):
+#         try:
+#             indx = int(selector)
+#             if indx == index:
+#                 dros_utils.connect(workspace)
+#                 break
+#         except:
+#             if selector == workspace:
+#                 dros_utils.connect(workspace)
+#                 break
 
 
 @click.command()
@@ -209,7 +233,7 @@ def remove(workspace: str, persist: bool) -> None:
 cli.add_command(new)
 # cli.add_command(start)
 cli.add_command(connect)
-cli.add_command(select)
+# cli.add_command(select)
 cli.add_command(reinit)
 cli.add_command(rename)
 cli.add_command(list)
