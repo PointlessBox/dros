@@ -1,6 +1,11 @@
 LICENSE
 README.md
+consts.py
+docker_commands.py
+dros_utils.py
+main.py
 setup.py
+workspace.py
 dros.egg-info/PKG-INFO
 dros.egg-info/SOURCES.txt
 dros.egg-info/dependency_links.txt

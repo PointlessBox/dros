@@ -7,6 +7,17 @@
 
 # How to
 
+## Build and install
+
+1. Clone the repository
+
+2. Install `build`:
+```bash
+pip3 install build
+```
+
+3. 
+
 ## Creating a new workspace
 
 

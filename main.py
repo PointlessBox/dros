@@ -3,7 +3,7 @@ import docker
 from typing import Optional
 import subprocess
 import docker_commands
-from dros import dros_utils
+import dros_utils
 from consts import ROS_IMAGE_REPOSITORY, ROS_IMAGE_DEFAULT_TAG, DROS_BASE_IMAGE_NAME
 import os
 
