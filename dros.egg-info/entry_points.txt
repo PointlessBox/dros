@@ -1,3 +1,0 @@
-[console_scripts]
-dros = main:cli
-

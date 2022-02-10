@@ -9,7 +9,7 @@
     - [Enable GUI applications inside workspace](#enable-gui-applications-inside-workspace)
     - [Edit your workspace without connecting to workspace](#edit-your-workspace-without-connecting-to-workspace)
 - [Tutorials](#tutorials)
-    - [Running SICK laserscanner with dros](#running-sick-laserscanner-with-dros)
+    - [Running SICK laserscanner with DROS](#running-sick-laserscanner-with-dros)
 <!-- /TOC -->
 
 
