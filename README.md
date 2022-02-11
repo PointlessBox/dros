@@ -1,3 +1,7 @@
+<mark>
+This is a students project and is not meant for production use!
+</mark>
+
 # Table of contents
 <!-- TOC -->
 - [Table of contents](#table-of-contents)
