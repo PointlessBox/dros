@@ -1,6 +1,5 @@
-<mark>
-This is a students project and is not meant for production use!
-</mark>
+# Disclaimer
+**This is a students project and is not meant for production use!**
 
 # Table of contents
 <!-- TOC -->
