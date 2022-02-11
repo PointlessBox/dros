@@ -2,6 +2,7 @@ from typing import Union, Optional, Dict, List
 import docker
 import subprocess
 import os
+from io import BytesIO
 from consts import ROS_IMAGE_REPOSITORY, ROS_IMAGE_DEFAULT_TAG, DROS_BASE_IMAGE_NAME
 
 def start_container(container_name: str) -> None:
@@ -71,24 +72,32 @@ def pull_image(image_name: str = 'ros:latest'):
 
     client = docker.from_env()
 
-    client.api.pull(repository=ROS_IMAGE_REPOSITORY, tag=tag, stream=True, decode=True)
+    client.images.pull(repository=ROS_IMAGE_REPOSITORY, tag=tag, stream=True, decode=True)
 
 
-def build_dros_image(ros_version = 'melodic'):
-    # try:
-    #     create_dockerfile()
-    # except:
-    #     pass
-    subprocess.run(["docker", "build", "-t", DROS_BASE_IMAGE_NAME, "."])
+def build_dros_image(tag: str, image_name: str):
+    dockerfile = get_dockerfile(tag)
+    client = docker.from_env()
+    client.images.build(fileobj=dockerfile, tag=image_name, pull=True)
+    # subprocess.run(["docker", "build", "-t", image_name, "."])
 
 
 def get_containers_with_base_image(base_image: str) -> List[docker.models.containers.Container]:
     client = docker.from_env()
 
-    return client.containers.list(all=True, filters={ "ancestor": "dros-ws:latest" })
+    containers: List[docker.models.containers.Container] = client.containers.list(all=True)
+    result: List[docker.models.containers.Container] = []
+    for con in containers:
+        for tag in con.image.tags:
+            if DROS_BASE_IMAGE_NAME in tag:
+                result.append(con)
+                continue
+
+    return result
 
 
-def run_container(container_name: str, volumes: Dict[str, Dict[str, str]]) -> None:
+def run_container(image_name: str, container_name: str, volumes: Dict[str, Dict[str, str]]) -> None:
+    print(image_name)
     client = docker.from_env()
     detach = True
     privileged = True
@@ -97,7 +106,7 @@ def run_container(container_name: str, volumes: Dict[str, Dict[str, str]]) -> No
     env_display = os.getenv('DISPLAY')
     if not env_display == None:
         env.append(f"DISPLAY={env_display}")
-    client.containers.run(DROS_BASE_IMAGE_NAME,
+    client.containers.run(image_name,
                         name=container_name,
                         detach=detach,
                         volumes=volumes,
@@ -112,15 +121,12 @@ def run_container(container_name: str, volumes: Dict[str, Dict[str, str]]) -> No
 #     pass
 
 
-def create_dockerfile():
-    dockerfile_content = """
+def get_dockerfile(tag: str):
+    dockerfile_content = f"""
 #ARG UBUNTU_VERSION
 #ARG ROS_INSTALLATION
-ARG ROS_VERSION
 
-FROM ros:${ROS_VERSION:-melodic}
-
-ENV ROS_VERSION=${ROS_VERSION:-melodic}
+FROM ros:{tag}
 
 RUN apt update
 
@@ -146,8 +152,8 @@ RUN ["/bin/bash", "-c", "source /ros_entrypoint.sh && source /opt/ros/$ROS_DISTR
 ENTRYPOINT ["sleep", "infinity"]
 """
 
-    with open('Dockerfile', 'xt') as dockerfile:
-        dockerfile.write(dockerfile_content)
+    virtual_file = BytesIO(bytes(dockerfile_content, 'utf-8'))
+    return virtual_file
 
 
 def rename_container(container_name: str, new_name: str) -> None:

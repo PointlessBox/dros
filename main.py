@@ -20,7 +20,7 @@ def cli() -> None:
 @click.option(
     '-r',
     '--ros-version',
-    default='latest',
+    default='melodic',
     help='ROS version you want to use (e.g. "melodic")'
 )
 @click.option(

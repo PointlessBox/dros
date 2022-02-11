@@ -64,7 +64,7 @@ mkdir some_dros_ws
 cd some_dros_ws
 ```
 
-3. Create new workspace with an appropriate name. For this example we will create a 'turtlebot' project workspace. By passing the `--path` option we can tell DROS to use a specific directory where our data should be placed in. In this case we create the directory 'turtle'. We can also specify the ROS version to use. In this case it's 'melodic':
+3. Create new workspace with an appropriate name. For this example we will create a 'turtlebot' project workspace. By passing the `--path` option we can tell DROS to use a specific directory where our data should be placed in. In this case we create the directory 'turtle'. We can also specify the ROS version to use by using the `--ros-version` option. In this case it's 'melodic':
 ```bash
 dros new turtlebot --path=turtle --ros-version=melodic
 ```

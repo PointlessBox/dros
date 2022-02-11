@@ -8,7 +8,7 @@ import os
 import pwd
 
 
-def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None:
+def new(workspace: str, ros_version, path: Optional[str]=None) -> None:
     """
     Creates an initializes the given workspace with the given ros_version, and creates a catkin_ws folder at the given path.
     
@@ -27,17 +27,23 @@ def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None
              /home/ws-x/catkin_ws           -> /home/ws-x/catkin_ws
         Defaults to current working directory (./catkin_ws)
     """
+
     image_name = f'{consts.ROS_IMAGE_REPOSITORY}:{ros_version}'
     if 'ros:' in ros_version:
         image_name = ros_version  # If user gives for example 'ros:latest' as --ros-version then replace the composed image_name
 
-    # Pulls the base ros base image 
+    print(image_name)
+    print(workspace)
+    print(ros_version)
+    print(docker_commands.image_exists(image_name))
+    print(docker_commands.image_exists(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}"))
+    # Pulls the ros base image 
     if not docker_commands.image_exists(image_name):
         docker_commands.pull_image(image_name)
 
     # Build dros base image
-    if not docker_commands.image_exists(consts.DROS_BASE_IMAGE_NAME):
-        docker_commands.build_dros_image()
+    if not docker_commands.image_exists(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}"):
+        docker_commands.build_dros_image(ros_version, f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}")
         
     catkin_ws = catkin_ws_path_from(path)
 
@@ -52,7 +58,9 @@ def new(workspace: str, ros_version="melodic", path: Optional[str]=None) -> None
         }
     }
 
-    docker_commands.run_container(workspace, workspace_config)
+    output = docker_commands.run_container(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}", workspace, workspace_config)
+
+    print(output)
 
     # subprocess.run([
     #     "docker", "create",
