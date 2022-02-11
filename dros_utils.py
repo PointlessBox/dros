@@ -32,11 +32,6 @@ def new(workspace: str, ros_version, path: Optional[str]=None) -> None:
     if 'ros:' in ros_version:
         image_name = ros_version  # If user gives for example 'ros:latest' as --ros-version then replace the composed image_name
 
-    print(image_name)
-    print(workspace)
-    print(ros_version)
-    print(docker_commands.image_exists(image_name))
-    print(docker_commands.image_exists(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}"))
     # Pulls the ros base image 
     if not docker_commands.image_exists(image_name):
         docker_commands.pull_image(image_name)
@@ -58,9 +53,7 @@ def new(workspace: str, ros_version, path: Optional[str]=None) -> None:
         }
     }
 
-    output = docker_commands.run_container(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}", workspace, workspace_config)
-
-    print(output)
+    docker_commands.run_container(f"{consts.DROS_BASE_IMAGE_NAME}-{ros_version}", workspace, workspace_config)
 
     # subprocess.run([
     #     "docker", "create",

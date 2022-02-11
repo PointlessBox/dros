@@ -97,7 +97,6 @@ def get_containers_with_base_image(base_image: str) -> List[docker.models.contai
 
 
 def run_container(image_name: str, container_name: str, volumes: Dict[str, Dict[str, str]]) -> None:
-    print(image_name)
     client = docker.from_env()
     detach = True
     privileged = True
